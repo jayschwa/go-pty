@@ -18,6 +18,7 @@ func Open() (ptm *os.File, ptsName string, err error) {
 	defer func() {
 		if err != nil && ptm != nil {
 			ptm.Close()
+			ptm = nil
 		}
 	}()
 
