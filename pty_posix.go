@@ -2,41 +2,48 @@
 
 package pty
 
-// #include <stdlib.h>
-// #include <fcntl.h>
+/*
+#define _XOPEN_SOURCE 600
+#include <stdlib.h>
+#include <fcntl.h>
+*/
 import "C"
-
 import "os"
 
-func Open() (ptm *os.File, ptsName string, err error) {
+// Open returns a new pair of master and slave pseudoterminal devices.
+//
+// When successful, the master device is ready for reading and writing; the
+// slave device can be opened internally with OpenTTY, control another process
+// with SetCmdTTY, or be passed off to some other part of the system.
+func Open() (master *os.File, slaveName string, err error) {
 
-	ptmFd, err := C.posix_openpt(C.O_RDWR | C.O_NOCTTY)
+	mfd, err := C.posix_openpt(C.O_RDWR | C.O_NOCTTY)
 	if err != nil {
 		return nil, "", err
 	}
-	ptm = os.NewFile(uintptr(ptmFd), "")
+	master = os.NewFile(uintptr(mfd), "")
 	defer func() {
-		if err != nil && ptm != nil {
-			ptm.Close()
-			ptm = nil
+		if err != nil && master != nil {
+			master.Close()
+			master = nil
 		}
 	}()
 
-	_, err = C.grantpt(ptmFd)
+	_, err = C.grantpt(mfd)
 	if err != nil {
 		return nil, "", err
 	}
 
-	_, err = C.unlockpt(ptmFd)
+	_, err = C.unlockpt(mfd)
 	if err != nil {
 		return nil, "", err
 	}
 
-	ptsNameCstr, err := C.ptsname(ptmFd)
+	C_slaveName, err := C.ptsname(mfd)
 	if err != nil {
 		return nil, "", err
 	}
-	ptsName = C.GoString(ptsNameCstr)
+	slaveName = C.GoString(C_slaveName)
 
-	return ptm, ptsName, nil
+	return master, slaveName, nil
 }

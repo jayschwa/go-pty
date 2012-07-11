@@ -25,16 +25,23 @@ func TestOpen(t *testing.T) {
 }
 
 func TestFork(t *testing.T) {
-	cmd := exec.Command("login", "-f", "jay")
-	ptm, err := Start(cmd)
+	cmd := exec.Command("sh")
+	ptm, err := SetCmdTTY(cmd, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	cmd.Start()
 	if err != nil {
 		t.Fatal(err)
 	}
 	go io.Copy(os.Stdout, ptm)
-	time.Sleep(100 * time.Millisecond) // Avoid premature echo
+	time.Sleep(100 * time.Millisecond)
 	fmt.Fprintln(ptm, "ps T")
+	time.Sleep(100 * time.Millisecond)
 	fmt.Fprintln(ptm, "tty")
+	time.Sleep(100 * time.Millisecond)
 	fmt.Fprintln(ptm, "who")
+	time.Sleep(100 * time.Millisecond)
 	fmt.Fprintln(ptm, "exit")
 	cmd.Wait()
 }
