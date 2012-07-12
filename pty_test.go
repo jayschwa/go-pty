@@ -4,12 +4,9 @@ package pty
 
 import "bufio"
 import "fmt"
-import "io"
-import "os"
 import "os/exec"
 import "strings"
 import "testing"
-import "time"
 
 // Verify Open returns sane values.
 func TestOpen(t *testing.T) {
