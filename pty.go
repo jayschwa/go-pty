@@ -29,10 +29,10 @@ func SetCmdTTY(cmd *exec.Cmd, ttyName string) (master *os.File, err error) {
 	if err != nil {
 		return nil, err
 	}
-	(*cmd).Stdin = tty
-	(*cmd).Stdout = tty
-	(*cmd).Stderr = tty
-	(*cmd).SysProcAttr = &syscall.SysProcAttr{
+	cmd.Stdin = tty
+	cmd.Stdout = tty
+	cmd.Stderr = tty
+	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Setsid:  true,
 		Setctty: true,
 	}
